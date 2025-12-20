@@ -36,14 +36,14 @@ export default function TargetGame({ onComplete }: TargetGameProps) {
       id: targetId,
       x: Math.random() * 80 + 10, // 10-90%
       y: Math.random() * 70 + 15, // 15-85%
-      size: Math.max(30, 60 - score * 2), // Devient plus petit avec le score
+      size: Math.max(50, 90 - score * 1.5), // PLUS GROS : Commence à 90px, min 50px (avant 60->30)
       createdAt: Date.now(),
     };
     setTargetId(prev => prev + 1);
     setTargets(prev => [...prev, newTarget]);
 
     // Supprimer la cible si non cliquée après un délai
-    const timeout = Math.max(1500 - score * 50, 800);
+    const timeout = Math.max(3000 - score * 50, 1500); // ENCORE PLUS LENT : 3s -> 1.5s min
     setTimeout(() => {
       setTargets(prev => {
         if (prev.find(t => t.id === newTarget.id)) {
@@ -65,7 +65,7 @@ export default function TargetGame({ onComplete }: TargetGameProps) {
     // Spawn régulier
     const spawnInterval = setInterval(() => {
       if (!gameOver) spawnTarget();
-    }, Math.max(1000 - score * 30, 500));
+    }, Math.max(1500 - score * 30, 800)); // Spawn encore plus calme
 
     return () => clearInterval(spawnInterval);
   }, [gameOver, spawnTarget, score]);
@@ -103,8 +103,12 @@ export default function TargetGame({ onComplete }: TargetGameProps) {
   if (gameOver) {
     const total = score + missed;
     const accuracy = total > 0 ? Math.round((score / total) * 100) : 0;
-    const speedBonus = Math.min(score * 2, 30);
-    const finalScore = Math.round((accuracy * 0.7) + speedBonus);
+    
+    // Nouveau calcul : 3 points par cible + bonus précision (max 25)
+    // Rend le score beaucoup moins punitif sur les ratés
+    const hitPoints = score * 3;
+    const accuracyBonus = Math.round(accuracy * 0.25);
+    const finalScore = Math.min(hitPoints + accuracyBonus, 100);
     
     return (
       <div className="flex items-center justify-center min-h-[400px]">

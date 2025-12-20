@@ -72,6 +72,18 @@ export default function Desktop() {
             setShowGlitchTransition(true);
             setTimeout(() => setShowGlitchTransition(false), 3000);
           }
+
+          if (data.ownerAction.type === 'shutdown') {
+            // Commande administrative : Fermeture forcée de toutes les fenêtres
+            setWindows({
+              terminal: false,
+              files: false,
+              mission: false,
+              minigame: false
+            });
+            setGlitchMessage('ARRÊT DU SYSTÈME...');
+            setShowGlitchTransition(true);
+          }
           
           // Clear the action
           updateDoc(doc(db, 'sessions', session.userId), {
@@ -87,6 +99,14 @@ export default function Desktop() {
   const openWindow = (window: string) => {
     setWindows(prev => ({ ...prev, [window]: true }));
     setActiveWindow(window);
+    
+    // Compléter l'objectif 4 quand on ouvre le gestionnaire de fichiers
+    if (window === 'files') {
+      const store = useGameStore.getState();
+      if (store.currentObjective?.id === 4 && !store.completedObjectives.includes(4)) {
+        store.completeObjective(4);
+      }
+    }
   };
 
   const closeWindow = (window: string) => {
@@ -110,8 +130,8 @@ export default function Desktop() {
           <Image
             src="/assets/logo/logo_améliorer_bleu.png"
             alt=""
-            width={100}
-            height={100}
+            width={150}
+            height={150}
             className="blur-[0.5px]"
             style={{ filter: 'brightness(0.6) opacity(0.15)' }}
           />
@@ -139,8 +159,8 @@ export default function Desktop() {
           <Image
             src="/assets/logo/logo_améliorer_bleu.png"
             alt=""
-            width={80}
-            height={80}
+            width={150}
+            height={150}
             className="blur-[0.5px]"
             style={{ filter: 'brightness(0.6) opacity(0.15)' }}
           />

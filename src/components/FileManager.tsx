@@ -42,13 +42,18 @@ export default function FileManager({ onClose, isActive, onFocus }: FileManagerP
       // Track file views for objectives
       if (file.path.includes('employees.txt')) {
         updateProgress('viewedEmployees', true);
-        // Complete objective 4 when viewing employees.txt
+        // Complete objective 5 when viewing employees.txt ("Trouver les identifiants")
         const { currentObjective, completeObjective, completedObjectives } = useGameStore.getState();
-        if (currentObjective?.id === 4 && !completedObjectives.includes(4)) {
-          completeObjective(4);
+        if (currentObjective?.id === 5 && !completedObjectives.includes(5)) {
+          completeObjective(5);
         }
       } else if (file.path.includes('master.key')) {
         updateProgress('hasDecryptionKey', true);
+        // Complete objective 6 when viewing master.key ("Trouver la clé secrète")
+        const { currentObjective, completeObjective, completedObjectives } = useGameStore.getState();
+        if (currentObjective?.id === 6 && !completedObjectives.includes(6)) {
+          completeObjective(6);
+        }
       }
     }
   };

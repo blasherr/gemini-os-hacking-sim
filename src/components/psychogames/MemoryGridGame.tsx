@@ -161,7 +161,11 @@ export default function MemoryGridGame({ onComplete }: MemoryGridGameProps) {
 
   // Écran de résultat
   if (phase === 'result') {
-    const finalScore = Math.min(Math.round(totalScore / level) + (level * 5), 100);
+    // Calcul plus juste : on ne compte que les niveaux complétés pour la moyenne
+    const completedLevels = feedback === 'success' ? level : level - 1;
+    const effectiveLevels = Math.max(1, completedLevels);
+    const averageScore = Math.round(totalScore / effectiveLevels);
+    const finalScore = Math.min(averageScore + (completedLevels * 5), 100);
     
     return (
       <div className="flex items-center justify-center min-h-[400px]">

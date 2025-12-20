@@ -34,8 +34,9 @@ export default function PasswordCrackGame() {
           setIsCracking(false);
           clearInterval(interval);
           
-          if (currentObjective?.id === 17) {
-            setTimeout(() => completeObjective(17), 1000);
+          // Objectif 9: Cracker un mot de passe
+          if (currentObjective?.id === 9) {
+            setTimeout(() => completeObjective(9), 1000);
           }
           
           addNotification({

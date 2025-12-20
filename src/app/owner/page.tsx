@@ -317,7 +317,7 @@ export default function OwnerPanel() {
 
         {/* Détails des jeux */}
         {isExpanded && session.psychoResults && (
-          <div className="mt-4 space-y-2 max-h-64 overflow-y-auto">
+          <div className="mt-4 space-y-2">
             {GAME_CATEGORIES.map(category => (
               <div key={category.id} className="bg-black/30 rounded-lg p-3">
                 <p className="text-xs text-gray-400 mb-2 flex items-center gap-2">
@@ -378,7 +378,7 @@ export default function OwnerPanel() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
+    <div className="h-screen overflow-y-auto bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">

@@ -172,7 +172,7 @@ export default function MazeGame({ onComplete }: MazeGameProps) {
 
   if (gameOver) {
     const timeBonus = Math.round((timeLeft / 60) * 30);
-    const levelBonus = levelsCompleted * 25;
+    const levelBonus = levelsCompleted * 30; // Augmenté de 25 à 30 pour rendre le 100% atteignable
     const finalScore = Math.min(timeBonus + levelBonus, 100);
     
     return (

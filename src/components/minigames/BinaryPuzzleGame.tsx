@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import { useGameStore } from '@/store/gameStore';
 
+
 export default function BinaryPuzzleGame() {
-  const [userCode, setUserCode] = useState('');
+  const [userBinary, setUserBinary] = useState('');
   const { completeObjective, currentObjective, addNotification } = useGameStore();
 
+  // Séquences binaires attendues (solution)
   const binarySequences = [
     '01010011', // S
     '01000101', // E
@@ -15,31 +17,53 @@ export default function BinaryPuzzleGame() {
     '01010010', // R
     '01000101', // E
   ];
-
+  const correctBinary = binarySequences.join(''); // 48 chiffres
   const correctCode = 'SECURE';
 
+  // Convertit une séquence binaire de 8 chiffres en ASCII
   const binaryToAscii = (binary: string): string => {
     return String.fromCharCode(parseInt(binary, 2));
   };
 
+  // Convertit la saisie utilisateur (48 chiffres) en texte
+  const userBinaryToText = (input: string): string => {
+    if (input.length !== 48) return '';
+    let result = '';
+    for (let i = 0; i < 48; i += 8) {
+      const chunk = input.slice(i, i + 8);
+      result += binaryToAscii(chunk);
+    }
+    return result;
+  };
+
   const handleSubmit = () => {
-    if (userCode.toUpperCase() === correctCode) {
+    if (userBinary.length !== 48) {
+      addNotification({
+        type: 'error',
+        title: 'Format incorrect',
+        message: 'Entrez exactement 48 chiffres binaires (6 x 8).',
+        duration: 3000
+      });
+      return;
+    }
+    if (userBinary === correctBinary) {
       addNotification({
         type: 'success',
         title: 'Vault Unlocked!',
         message: 'Binary sequence decoded successfully!',
         duration: 5000
       });
-
-      if (currentObjective?.id === 14) {
-        setTimeout(() => completeObjective(14), 1000);
+      if (currentObjective?.id === 8) {
+        setTimeout(() => completeObjective(8), 1000);
       }
     } else {
+      // Affiche le texte décodé pour aider
+      const decoded = userBinaryToText(userBinary);
       addNotification({
         type: 'error',
         title: 'Access Denied',
-        message: 'Incorrect code. Try again.',
-        duration: 3000
+        message: decoded ? `Décodé: ${decoded}` : 'Incorrect code. Try again.',
+        duration: 4000
       });
     }
   };
@@ -67,26 +91,35 @@ export default function BinaryPuzzleGame() {
         </div>
       </div>
 
+
       <div>
         <label className="block text-sm mb-2">
-          Enter the 6-letter code:
+          Entrez les 6 séquences binaires (48 chiffres, sans espace) :
         </label>
         <input
           type="text"
-          value={userCode}
-          onChange={(e) => setUserCode(e.target.value.toUpperCase())}
-          maxLength={6}
-          className="w-full px-4 py-3 bg-macos-window border border-macos-text-secondary/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-hacker-primary text-macos-text font-mono text-2xl text-center tracking-widest uppercase"
-          placeholder="??????"
+          value={userBinary}
+          onChange={(e) => setUserBinary(e.target.value.replace(/[^01]/g, ''))}
+          maxLength={48}
+          className="w-full px-4 py-3 bg-macos-window border border-macos-text-secondary/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-hacker-primary text-macos-text font-mono text-lg text-center tracking-widest"
+          placeholder="Ex: 0101001101000101..."
         />
+        <div className="text-xs text-macos-text-secondary mt-2">
+          {userBinary.length}/48 chiffres saisis
+        </div>
+        {userBinary.length === 48 && (
+          <div className="text-xs text-hacker-primary mt-1">
+            Décodé: <span className="font-mono">{userBinaryToText(userBinary)}</span>
+          </div>
+        )}
       </div>
 
       <button
         onClick={handleSubmit}
-        disabled={userCode.length !== 6}
+        disabled={userBinary.length !== 48}
         className="w-full py-3 bg-hacker-primary hover:bg-hacker-secondary text-black font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Unlock Vault
+        Déverrouiller le coffre
       </button>
 
       <div className="bg-macos-window p-4 rounded-xl">

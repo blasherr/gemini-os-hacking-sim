@@ -23,12 +23,21 @@ const ROTATION_NOTES = [329.63, 392.00, 440.00, 523.25];
 function rotateShape(points: number[][], times: number): number[][] {
   let rotated = [...points.map(p => [...p])];
   for (let i = 0; i < times; i++) {
-    rotated = rotated.map(([x, y]) => [y, -x + 2]);
+    // Rotation HORAIRE (Clockwise) : (x, y) -> (-y, x)
+    rotated = rotated.map(([x, y]) => [-y, x]);
   }
   // Normaliser pour que les coordonnées soient positives
   const minX = Math.min(...rotated.map(p => p[0]));
   const minY = Math.min(...rotated.map(p => p[1]));
   return rotated.map(([x, y]) => [x - minX, y - minY]);
+}
+
+function mirrorShape(points: number[][]): number[][] {
+  // Miroir horizontal
+  const mirrored = points.map(([x, y]) => [-x, y]);
+  const minX = Math.min(...mirrored.map(p => p[0]));
+  const minY = Math.min(...mirrored.map(p => p[1]));
+  return mirrored.map(([x, y]) => [x - minX, y - minY]);
 }
 
 function shapesMatch(a: number[][], b: number[][]): boolean {
@@ -38,11 +47,15 @@ function shapesMatch(a: number[][], b: number[][]): boolean {
   return sortedA.every((v, i) => v === sortedB[i]);
 }
 
+interface Option {
+  shape: number[][];
+  isCorrect: boolean;
+}
+
 interface Question {
   originalShape: number[][];
-  rotatedShape: number[][];
   rotationAmount: number;
-  options: { rotation: number; shape: number[][] }[];
+  options: Option[];
 }
 
 export default function RotationGame({ onComplete }: RotationGameProps) {
@@ -61,24 +74,43 @@ export default function RotationGame({ onComplete }: RotationGameProps) {
     const rotationAmount = Math.floor(Math.random() * 3) + 1; // 1, 2, ou 3 rotations (90°, 180°, 270°)
     
     const originalShape = shape.points;
-    const rotatedShape = rotateShape(originalShape, rotationAmount);
+    const correctShape = rotateShape(originalShape, rotationAmount);
 
-    // Générer des options (une correcte + 3 fausses)
-    const options: { rotation: number; shape: number[][] }[] = [];
+    const options: Option[] = [];
     
-    // Option correcte
-    options.push({ rotation: rotationAmount, shape: rotatedShape });
+    // 1. Ajouter la réponse correcte
+    options.push({ shape: correctShape, isCorrect: true });
     
-    // Options fausses
-    const wrongRotations = [1, 2, 3].filter(r => r !== rotationAmount);
-    for (const r of wrongRotations) {
-      options.push({ rotation: r, shape: rotateShape(originalShape, r) });
+    // 2. Générer un pool de fausses réponses (distracteurs)
+    const pool: number[][][] = [];
+    
+    // Ajouter les autres rotations de la forme originale
+    for (let r = 0; r < 4; r++) {
+      if (r !== rotationAmount) pool.push(rotateShape(originalShape, r));
     }
     
-    // Mélanger
-    options.sort(() => Math.random() - 0.5);
+    // Ajouter les formes MIROIR (piège classique de rotation mentale)
+    const mirrored = mirrorShape(originalShape);
+    for (let r = 0; r < 4; r++) {
+      pool.push(rotateShape(mirrored, r));
+    }
 
-    return { originalShape, rotatedShape, rotationAmount, options };
+    // 3. Remplir les options avec des formes UNIQUES
+    // Mélanger le pool pour varier les pièges
+    pool.sort(() => Math.random() - 0.5);
+
+    for (const candidate of pool) {
+      if (options.length >= 4) break;
+      
+      // Vérifier que cette forme n'est pas déjà dans les options (évite les doublons visuels)
+      const isDuplicate = options.some(opt => shapesMatch(opt.shape, candidate));
+      if (!isDuplicate) {
+        options.push({ shape: candidate, isCorrect: false });
+      }
+    }
+
+    // Mélanger les options finales pour que la bonne réponse ne soit pas toujours la première
+    return { originalShape, rotationAmount, options: options.sort(() => Math.random() - 0.5) };
   }, []);
 
   useEffect(() => {
@@ -108,12 +140,12 @@ export default function RotationGame({ onComplete }: RotationGameProps) {
     
     // Son de la rotation sélectionnée
     const selectedOption = question.options[optionIndex];
-    audioRef.current.playNote(ROTATION_NOTES[selectedOption.rotation], 0.2);
+    audioRef.current.playNote(ROTATION_NOTES[optionIndex % 4], 0.2);
     
     setSelectedAnswer(optionIndex);
     setShowResult(true);
     
-    const isCorrect = shapesMatch(selectedOption.shape, question.rotatedShape);
+    const isCorrect = selectedOption.isCorrect;
     
     if (isCorrect) {
       setTimeout(() => audioRef.current.playSuccess(), 150);
@@ -215,7 +247,7 @@ export default function RotationGame({ onComplete }: RotationGameProps) {
           {renderShape(question.originalShape, 80, '#06b6d4')}
         </div>
         <p className="text-cyan-400 text-sm mt-4">
-          ↻ Rotation de {question.rotationAmount * 90}°
+          ↻ Rotation HORAIRE de {question.rotationAmount * 90}°
         </p>
       </div>
 
@@ -223,7 +255,7 @@ export default function RotationGame({ onComplete }: RotationGameProps) {
       <div className="grid grid-cols-2 gap-4">
         {question.options.map((option, index) => {
           const isSelected = selectedAnswer === index;
-          const isCorrect = shapesMatch(option.shape, question.rotatedShape);
+          const isCorrect = option.isCorrect;
           
           return (
             <motion.button

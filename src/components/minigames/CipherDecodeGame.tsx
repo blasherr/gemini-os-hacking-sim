@@ -3,9 +3,14 @@
 import { useState } from 'react';
 import { useGameStore } from '@/store/gameStore';
 
-export default function CipherDecodeGame() {
+interface CipherDecodeGameProps {
+  onComplete?: () => void;
+}
+
+export default function CipherDecodeGame({ onComplete }: CipherDecodeGameProps) {
   const [shift, setShift] = useState(0);
   const [decoded, setDecoded] = useState('');
+  const [isCompleted, setIsCompleted] = useState(false);
   const { completeObjective, currentObjective, addNotification } = useGameStore();
 
   const encryptedMessage = 'GUR FRPERG INHYG VF VA OHVYQVAT O, EBBZ 404';
@@ -28,7 +33,8 @@ export default function CipherDecodeGame() {
     const result = caesarDecode(encryptedMessage, shift);
     setDecoded(result);
 
-    if (result === correctMessage) {
+    if (result === correctMessage && !isCompleted) {
+      setIsCompleted(true);
       addNotification({
         type: 'success',
         title: 'Message Decoded!',
@@ -36,8 +42,14 @@ export default function CipherDecodeGame() {
         duration: 5000
       });
 
-      if (currentObjective?.id === 11) {
-        setTimeout(() => completeObjective(11), 1000);
+      // Compléter l'objectif 7 (Déchiffrer un message Caesar)
+      if (currentObjective?.id === 7) {
+        setTimeout(() => completeObjective(7), 1000);
+      }
+      
+      // Appeler le callback onComplete si fourni
+      if (onComplete) {
+        setTimeout(() => onComplete(), 1500);
       }
     }
   };

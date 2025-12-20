@@ -255,7 +255,7 @@ export default function PsychoTestDesktop({ onComplete }: PsychoTestDesktopProps
 
   // Menu principal style macOS
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f0f23] relative overflow-hidden">
+    <div className="h-screen bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f0f23] relative overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-500/20 scrollbar-track-transparent">
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[150px]" />
@@ -409,6 +409,10 @@ export default function PsychoTestDesktop({ onComplete }: PsychoTestDesktopProps
           >
             {PSYCHO_GAMES
               .filter(game => !selectedCategory || game.category === selectedCategory)
+              .sort((a, b) => {
+                const order: {[key: string]: number} = { easy: 1, medium: 2, hard: 3 };
+                return (order[a.difficulty] || 2) - (order[b.difficulty] || 2);
+              })
               .map((game, index) => {
                 const completed = isGameCompleted(game.id);
                 const score = scores[game.id];
