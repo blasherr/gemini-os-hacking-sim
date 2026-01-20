@@ -2,13 +2,13 @@ import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getFirestore, Firestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDvZT8ePOvJRmTlYYE88qu_gKhTAlZSzqw",
-  authDomain: "mdt-fan.firebaseapp.com",
-  projectId: "mdt-fan",
-  storageBucket: "mdt-fan.firebasestorage.app",
-  messagingSenderId: "1081027923568",
-  appId: "1:1081027923568:web:7c0b5a99a2c2e80202eeb5",
-  measurementId: "G-YME2FFS79P"
+  apiKey: "AIzaSyBexdKbFg7mjPZybYHDstZEQraebvKBm6k",
+  authDomain: "mdt-fan-v1.firebaseapp.com",
+  projectId: "mdt-fan-v1",
+  storageBucket: "mdt-fan-v1.firebasestorage.app",
+  messagingSenderId: "162786992446",
+  appId: "1:162786992446:web:f4a2bbc548b5c62b190c6f",
+  measurementId: "G-V700HQN6M3"
 };
 
 let app: FirebaseApp;

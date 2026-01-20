@@ -240,8 +240,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
       console.log('✅ Session created in Firebase:', userId);
       return userId;
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error creating user session:', error);
+      console.error('❌ Error code:', error?.code);
+      console.error('❌ Error message:', error?.message);
+      // Afficher l'erreur détaillée dans une alerte pour debug
+      if (typeof window !== 'undefined') {
+        console.error('🔥 Firebase Error Details:', JSON.stringify({
+          code: error?.code,
+          message: error?.message,
+          name: error?.name
+        }, null, 2));
+      }
       return null;
     }
   },
